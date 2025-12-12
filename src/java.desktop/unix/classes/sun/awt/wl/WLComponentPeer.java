@@ -368,18 +368,22 @@ public class WLComponentPeer implements ComponentPeer, WLSurfaceSizeListener {
     protected void wlSetVisible(boolean v) {
         // TODO: this whole method should be moved to WLWindowPeer
         synchronized (getStateLock()) {
-            if (this.visible == v) return;
-
-            if (v) {
-                show();
+            // TODO: make sure visibility state cannot be changed midway through this method
+            if (visible == v) return;
+        }
+        if (v) {
+            show();
+            synchronized (getStateLock()) {
                 // Consider the window visible only if show() fully succeeds.
                 visible = true;
-            } else {
+            }
+        } else {
+            synchronized (getStateLock()) {
                 // Hiding is presumed to succeed even if an error occurs in the process
                 // in the sense that a subsequent request to hide() will not do anything useful.
                 visible = false;
-                hide();
             }
+            hide();
         }
     }
 
